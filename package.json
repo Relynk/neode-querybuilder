@@ -1,13 +1,10 @@
 {
-  "name": "@relynk/querybuilder",
+  "name": "@neode/querybuilder",
   "version": "0.1.6",
   "description": "Fluent Cypher Query Builder for NodeJS - As used in Neode",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc -w",
-    "dev-packages": "tsc -w",
-    "lint": "eslint src --fix",
+    "build": "rm -rf dist && tsc",
     "test": "jest",
     "tdd": "jest --watch",
     "coverage": "jest --coverage",
@@ -39,6 +36,7 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
+    "neo4j-driver": "^4.1.2",
     "save": "^2.4.0"
   }
 }
