@@ -1,9 +1,9 @@
 import { int } from "neo4j-driver"
-import Statement from "../statements/statement"
+import { Condition, Direction, Order, StatementPrefix } from "../constants"
 import Property from "../property"
-import WhereStatement from "../statements/where-statement"
-import { Condition, Prefix, StatementPrefix, Order, Direction, Operator } from "../constants"
 import Raw from "../raw"
+import Statement from "../statements/statement"
+import WhereStatement from "../statements/where-statement"
 
 interface Params {
   [key: string]: any
@@ -96,6 +96,16 @@ export default class Builder<T> {
 
   set(key: string, value: any): Builder<T> {
     this.currentStatement().set(key, this.aliasProperty(null, key, value).getParam())
+
+    return this
+  }
+
+  setObject(key: string, value: { [key: string]: any }): Builder<T> {
+    Object.entries(value).map(([subKey, subValue]) => {
+      if (subValue === undefined) return
+      else if (subValue === null) this.currentStatement().remove(`${key}.${subKey}`)
+      else this.currentStatement().set(`${key}.${subKey}`, this.aliasProperty(null, `${key}.${subKey}`, subValue).getParam())
+    })
 
     return this
   }
