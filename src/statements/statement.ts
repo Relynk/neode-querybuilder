@@ -7,6 +7,7 @@ import ForeachStatement from "./foreach-statement"
 import MatchStatement from "./match-statement"
 import OrderBy from "./order-by"
 import SetProperty from "./set-property"
+import Unwind from "./unwind-statement"
 import WhereStatement from "./where-statement"
 import WithStatement from "./with-statement"
 
@@ -16,6 +17,8 @@ export default class Statement<T> {
   private deleteValues: string[] = []
 
   private detachDeleteValues: string[] = []
+
+  private unwindValues: Unwind[] = []
 
   private removeValues: string[] = []
 
@@ -52,6 +55,12 @@ export default class Statement<T> {
 
   call(fn: string, ...parameters: any[]) {
     this.pattern.push(new CallStatement(fn, parameters))
+
+    return this
+  }
+
+  callRaw(functionWithParams: string) {
+    this.pattern.push(functionWithParams)
 
     return this
   }
@@ -128,6 +137,12 @@ export default class Statement<T> {
 
   detachDelete(...values: string[]): Statement<T> {
     this.detachDeleteValues = this.detachDeleteValues.concat(values)
+
+    return this
+  }
+
+  unwind(key: string, as: string): Statement<T> {
+    this.unwindValues.push(new Unwind(key, as))
 
     return this
   }
@@ -287,6 +302,11 @@ export default class Statement<T> {
     // Foreach
     if (this.foreachStatements.length) {
       output.push(this.foreachStatements.map(statement => statement.toString()).join("\n"))
+    }
+
+    // Unwind
+    if (this.unwindValues.length) {
+      output.push(`UNWIND ${this.unwindValues.map(value => value.toString()).join(", ")}`)
     }
 
     // On Create Set

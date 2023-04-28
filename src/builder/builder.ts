@@ -36,6 +36,14 @@ export default class Builder<T> {
     return this
   }
 
+  callRaw(functionWithParams: string): Builder<T> {
+    this.addStatement(StatementPrefix.CALL)
+
+    this.currentStatement().callRaw(functionWithParams)
+
+    return this
+  }
+
   yield(...items: string[]): Builder<T> {
     this.currentStatement().yield(...items)
 
@@ -256,6 +264,12 @@ export default class Builder<T> {
     return this
   }
 
+  unwind(key: string, as: string): Builder<T> {
+    this.currentStatement().unwind(key, as)
+
+    return this
+  }
+
   orderBy(key: string, order: Order = Order.ASC): Builder<T> {
     this.currentStatement().orderBy(key, order)
 
@@ -346,8 +360,10 @@ export default class Builder<T> {
       }
     }
 
-    // Convert it to an int?
-    if (Number.isInteger(value)) value = int(value)
+    // // Convert it to an int?
+    // if (Number.isInteger(value)) value = int(value)
+
+    if (value instanceof Date) value = value.toISOString()
 
     // Set in params
     this.params[param] = value
