@@ -96,8 +96,28 @@ export default class Builder<T> {
     return this
   }
 
+  onCreateSetObject(key: string, value: { [key: string]: any }): Builder<T> {
+    Object.entries(value).map(([subKey, subValue]) => {
+      if (subValue === undefined) return
+      else if (subValue === null) this.currentStatement().remove(`${key}.${subKey}`)
+      else this.currentStatement().onCreateSet(`${key}.${subKey}`, this.aliasProperty(null, `${key}.${subKey}`, subValue).getParam())
+    })
+
+    return this
+  }
+
   onMatchSet(key: string, value: any): Builder<T> {
     this.currentStatement().onMatchSet(key, this.aliasProperty(null, key, value).getParam())
+
+    return this
+  }
+
+  onMatchSetObject(key: string, value: { [key: string]: any }): Builder<T> {
+    Object.entries(value).map(([subKey, subValue]) => {
+      if (subValue === undefined) return
+      else if (subValue === null) this.currentStatement().remove(`${key}.${subKey}`)
+      else this.currentStatement().onMatchSet(`${key}.${subKey}`, this.aliasProperty(null, `${key}.${subKey}`, subValue).getParam())
+    })
 
     return this
   }
