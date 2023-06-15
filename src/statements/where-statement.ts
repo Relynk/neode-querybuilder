@@ -1,150 +1,146 @@
-import Predicate from '../predicates/predicate'
-import WhereRaw from '../predicates/where-raw';
-import WhereId from '../predicates/where-id'
+import Predicate from "../predicates/predicate"
+import WhereRaw from "../predicates/where-raw"
+import WhereId from "../predicates/where-id"
 
-import  { Operator, Condition, Prefix, } from '../constants'
-import WhereBetween from '../predicates/where-between';
-
+import { Operator, Condition, Prefix } from "../constants"
+import WhereBetween from "../predicates/where-between"
 
 export default class WhereStatement {
+  private condition: Condition
 
-    private condition: Condition;
+  private predicates: Array<WhereStatement | Predicate | WhereBetween | WhereRaw> = []
 
-    private predicates: Array<WhereStatement | Predicate | WhereBetween | WhereRaw> = [];
+  constructor(condition: Condition = Condition.DEFAULT) {
+    this.condition = condition
+  }
 
-    constructor(condition: Condition = Condition.DEFAULT) {
-        this.condition = condition
+  get length(): number {
+    return this.predicates.length
+  }
+
+  where(alias: WhereStatement | string, param?: string, operator?: Operator, prefix?: Prefix, negative: boolean = false): WhereStatement {
+    if (alias instanceof WhereStatement) {
+      this.predicates.push(alias)
+    } else {
+      const predicate = new Predicate(alias, param, operator, prefix)
+
+      if (negative) predicate.setNegative()
+
+      this.predicates.push(predicate)
     }
 
-    get length() : number {
-        return this.predicates.length
-    }
+    return this
+  }
 
-    where(alias: WhereStatement | string, param?: string, operator?: Operator, prefix?: Prefix, negative: boolean = false) : WhereStatement {
-        if ( alias instanceof WhereStatement ) {
-            this.predicates.push( alias )
-        }
-        else {
-            const predicate = new Predicate(alias, param, operator, prefix);
+  whereNot(alias: string, param: string, prefix?: Prefix): WhereStatement {
+    this.predicates.push(new Predicate(alias, param, Operator.EQUALS, prefix).setNegative())
 
-            if ( negative ) predicate.setNegative()
+    return this
+  }
 
-            this.predicates.push( predicate )
-        }
+  whereId(alias: string, param: string, prefix?: Prefix): WhereStatement {
+    this.predicates.push(new WhereId(alias, param, Operator.EQUALS, prefix))
 
-        return this
-    }
+    return this
+  }
 
-    whereNot(alias: string, param: string, prefix?: Prefix) : WhereStatement {
-        this.predicates.push( new Predicate(alias, param, Operator.EQUALS, prefix).setNegative() )
+  whereNotId(alias: string, param: string, prefix?: Prefix): WhereStatement {
+    this.predicates.push(new WhereId(alias, param, Operator.EQUALS, prefix).setNegative())
 
-        return this
-    }
-    
-    whereId(alias: string, param: string, prefix?: Prefix) : WhereStatement {
-        this.predicates.push( new WhereId(alias, param, Operator.EQUALS, prefix) )
+    return this
+  }
 
-        return this
-    }
-    
-    whereNotId(alias: string, param: string, prefix?: Prefix) : WhereStatement {
-        this.predicates.push( new WhereId(alias, param, Operator.EQUALS, prefix).setNegative() )
+  whereRaw(predicate: string, prefix?: Prefix): WhereStatement {
+    this.predicates.push(new WhereRaw(predicate, prefix))
 
-        return this
-    }
+    return this
+  }
 
-    whereRaw(predicate: string, prefix?: Prefix) : WhereStatement {
-        this.predicates.push( new WhereRaw(predicate, prefix) )
+  whereBetween(alias: string, floor: string, ceiling: string): WhereStatement {
+    this.predicates.push(new WhereBetween(alias, floor, ceiling))
 
-        return this
-    }
+    return this
+  }
 
-    whereBetween(alias: string, floor: string, ceiling: string) : WhereStatement {
-        this.predicates.push( new WhereBetween(alias, floor, ceiling) )
+  whereLike(key: string, param: string): WhereStatement {
+    this.predicates.push(new Predicate(key, param, Operator.LIKE))
 
-        return this
-    }
+    return this
+  }
 
-    whereLike(key: string, param: string) : WhereStatement {
-        this.predicates.push( new Predicate(key, param, Operator.LIKE) )
+  whereNotLike(key: string, param: string): WhereStatement {
+    this.predicates.push(new Predicate(key, param, Operator.LIKE).setNegative())
 
-        return this
-    }
+    return this
+  }
 
-    whereNotLike(key: string, param: string) : WhereStatement {
-        this.predicates.push( new Predicate(key, param, Operator.LIKE).setNegative() )
+  whereStartsWith(key: string, param: string): WhereStatement {
+    this.predicates.push(new Predicate(key, param, Operator.STARTS_WITH))
 
-        return this
-    }
+    return this
+  }
 
-    whereStartsWith(key: string, param: string) : WhereStatement {
-        this.predicates.push( new Predicate(key, param, Operator.STARTS_WITH) )
+  whereNotStartsWith(key: string, param: string): WhereStatement {
+    this.predicates.push(new Predicate(key, param, Operator.STARTS_WITH).setNegative())
 
-        return this
-    }
+    return this
+  }
 
-    whereNotStartsWith(key: string, param: string) : WhereStatement {
-        this.predicates.push( new Predicate(key, param, Operator.STARTS_WITH).setNegative() )
+  whereEndsWith(key: string, param: string): WhereStatement {
+    this.predicates.push(new Predicate(key, param, Operator.ENDS_WITH))
 
-        return this
-    }
+    return this
+  }
 
-    whereEndsWith(key: string, param: string) : WhereStatement {
-        this.predicates.push( new Predicate(key, param, Operator.ENDS_WITH) )
+  whereNotEndsWith(key: string, param: string): WhereStatement {
+    this.predicates.push(new Predicate(key, param, Operator.ENDS_WITH).setNegative())
 
-        return this
-    }
+    return this
+  }
 
-    whereNotEndsWith(key: string, param: string) : WhereStatement {
-        this.predicates.push( new Predicate(key, param, Operator.ENDS_WITH).setNegative() )
+  whereContains(key: string, param: string): WhereStatement {
+    this.predicates.push(new Predicate(key, param, Operator.CONTAINS))
 
-        return this
-    }
+    return this
+  }
 
-    whereContains(key: string, param: string) : WhereStatement {
-        this.predicates.push( new Predicate(key, param, Operator.CONTAINS) )
+  whereNotContains(key: string, param: string): WhereStatement {
+    this.predicates.push(new Predicate(key, param, Operator.CONTAINS).setNegative())
 
-        return this
-    }
+    return this
+  }
 
-    whereNotContains(key: string, param: string) : WhereStatement {
-        this.predicates.push( new Predicate(key, param, Operator.CONTAINS).setNegative() )
+  whereGreaterThan(key: string, param: string): WhereStatement {
+    this.predicates.push(new Predicate(key, param, Operator.GREATER_THAN))
 
-        return this
-    }
+    return this
+  }
 
-    whereGreaterThan(key: string, param: string) : WhereStatement {
-        this.predicates.push( new Predicate(key, param, Operator.GREATER_THAN) )
+  whereGreaterThanOrEqual(key: string, param: string): WhereStatement {
+    this.predicates.push(new Predicate(key, param, Operator.GREATER_THAN_OR_EQUAL))
 
-        return this
-    }
+    return this
+  }
 
-    whereGreaterThanOrEqual(key: string, param: string) : WhereStatement {
-        this.predicates.push( new Predicate(key, param, Operator.GREATER_THAN_OR_EQUAL) )
+  whereLessThan(key: string, param: string): WhereStatement {
+    this.predicates.push(new Predicate(key, param, Operator.LESS_THAN))
 
-        return this
-    }
+    return this
+  }
 
-    whereLessThan(key: string, param: string) : WhereStatement {
-        this.predicates.push( new Predicate(key, param, Operator.LESS_THAN) )
+  whereLessThanOrEqual(key: string, param: string): WhereStatement {
+    this.predicates.push(new Predicate(key, param, Operator.LESS_THAN_OR_EQUAL))
 
-        return this
-    }
+    return this
+  }
 
-    whereLessThanOrEqual(key: string, param: string) : WhereStatement {
-        this.predicates.push( new Predicate(key, param, Operator.LESS_THAN_OR_EQUAL) )
+  or(alias: string, param: string, operator?: Operator): WhereStatement {
+    this.predicates.push(new Predicate(alias, param, operator, Prefix.OR))
 
-        return this
-    }
+    return this
+  }
 
-    or(alias: string, param: string, operator?: Operator) : WhereStatement {
-        this.predicates.push( new Predicate(alias, param, operator, Prefix.OR) )
-
-        return this
-    }
-
-    toString() : string {
-        return `${this.condition}(${this.predicates.map((predicate, index) => predicate.toString(index > 0)).join(' ')})`
-    }
-
+  toString(): string {
+    return `${this.condition}(${this.predicates.map((predicate, index) => predicate.toString(index > 0)).join(" ")})`
+  }
 }

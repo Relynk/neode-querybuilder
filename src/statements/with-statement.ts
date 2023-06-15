@@ -1,13 +1,11 @@
 export default class WithStatement {
+  private values: string[]
 
-    private values: string[];
+  constructor(values: string[]) {
+    this.values = values
+  }
 
-    constructor(values: string[]) {
-        this.values = values;
-    }
-
-    toString() {
-        return this.values.join(', ');
-    }
-
+  toString() {
+    return this.values.join(", ")
+  }
 }

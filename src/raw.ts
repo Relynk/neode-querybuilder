@@ -1,7 +1,7 @@
 export default class Raw {
-    constructor(private readonly value: any) {}
+  constructor(private readonly value: any) {}
 
-    toString() {
-        return this.value
-    }
+  toString() {
+    return this.value
+  }
 }
